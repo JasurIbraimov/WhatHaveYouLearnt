@@ -14,7 +14,7 @@ const AppNavbar = () => {
                 <Nav className="me-auto d-flex flex-row align-items-center" navbar fill>
                     <NavItem className="m-2">
                         <Link className="text-light text-decoration-none fw-bold h5" to="/">
-                            WhatHaveYouLearnt?
+                            WHYL?
                             <img src={Logo} style={{ width: 50, height: 50 }}/> 
                         </Link>
                     </NavItem>
