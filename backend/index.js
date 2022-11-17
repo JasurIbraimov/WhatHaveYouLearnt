@@ -9,12 +9,10 @@ const PORT = process.env.PORT;
 const MONGO_ATLAS_URI = process.env.MONGO_ATLAS_URI;
 
 const app = express();
-
-app.use("/posts", postsRoutes);
-app.use(express.json({ limit: "30mb", extended: true }));
-app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
-
+app.use(express.json({ limit: "10mb", extended: true }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use("/posts", postsRoutes);
 
 mongoose
     .connect(MONGO_ATLAS_URI, {  useNewUrlParser: true, useUnifiedTopology: true })

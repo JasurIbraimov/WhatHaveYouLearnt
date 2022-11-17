@@ -31,7 +31,7 @@ const createPost = (req, res) => {
     post.save().then(() => {
       return res.status(201).json({
         success: true,
-        message: "Todposto Created!",
+        message: "Post Created!",
         id: post._id,
       });
     }).catch(err => {
