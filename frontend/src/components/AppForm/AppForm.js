@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileBase from "react-file-base64"
 import {
     Form,
@@ -9,10 +9,15 @@ import {
     ListGroup,
     ListGroupItem,
     FormText,
+    Spinner
 } from "reactstrap";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createPost } from "../../redux/features/posts/postsSlice";
+import { useNavigate } from "react-router-dom";
 const AppForm = () => {
+    const { created } = useSelector(
+        (store) => store.posts
+    );
     const [post, setPost] = useState({
         description: "",
         selectedFile: "",
@@ -21,10 +26,21 @@ const AppForm = () => {
     });
     const [link, setLink] = useState("");
     const [tag, setTag] = useState("");
+    const [loading, setLoading] = useState(false)
+    let navigate = useNavigate();
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (created) {
+            navigate("/")
+        }
+    }, [created])
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoading(true)
         dispatch(createPost({ ...post, creator: "Jasur" }));
+        
     };
     const addLink = () => {
         setPost({ ...post, links: [...post.links, link] });
@@ -112,7 +128,9 @@ const AppForm = () => {
                 </ListGroup>
             </FormGroup>
             <Button color="success" className="mt-2">
-                Submit
+                    {
+                        loading ?  <Spinner color="light"/> : "Submit"   
+                    }
             </Button>
         </Form>
     );

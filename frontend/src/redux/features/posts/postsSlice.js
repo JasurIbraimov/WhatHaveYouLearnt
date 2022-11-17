@@ -1,130 +1,73 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getAllPosts, createNewPost  } from "../../../api";
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', getAllPosts)
-export const createPost = createAsyncThunk("posts/createPost", async (data) =>{
-  console.log(data)
-  await createNewPost(data)
+import axios from "axios";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_URL = "http://localhost:5000/posts";
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+    const response = await axios.get(API_URL);
+    return response.data.posts;
+});
 
-})
-
+export const createPost = createAsyncThunk("posts/createPost", async (data) => {
+    const response = await axios.post(API_URL, data);
+    return response.data;
+});
+export const deletePost = createAsyncThunk("posts/deletePost", async (id) => {
+    await axios.delete(API_URL + "/" + id);
+    return id;
+});
+export const updatePost = createAsyncThunk("posts/updatePost", async (id) => {
+    const response = await axios.patch(API_URL, { id });
+    return { data: response.data, id };
+});
 const initialState = {
-  postItems: [
-    {
-      description: "Learned Redux!",
-      id: 1,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 2,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 3,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4", "https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },{
-      description: "Learned Redux!",
-      id: 4,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 5,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 6,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },{
-      description: "Learned Redux!",
-      id: 7,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 8,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4", ],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    },
-    {
-      description: "Learned Redux!",
-      id: 9,
-      links: ["https://www.youtube.com/watch?v=bbkBuqC1rU4"],
-      creator: "Jasur",
-      tags: ["Redux", "Programming"],
-      likeCount: 1,
-      selectedFile: ""
-    }
-
-  ],
-  isLoading: true, 
-  amount:4,
-  isError: false
-}
-
-
+    postItems: [    ],
+    isLoading: true,
+    amount: 0,
+    isError: false,
+	created: false 
+};
 
 export const postsSlice = createSlice({
-  name: 'posts',
-  initialState,
-  reducers: {
-  },
-  extraReducers: builder => {
-    builder
-    .addCase(
-      fetchPosts.pending, (state, action) => {
-        state.isLoading = true 
-      }
-    ).addCase(
-      fetchPosts.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.isError = false
-        state.postItems = action.payload
-        state.amount = action.payload.length 
-      }
-    ).addCase(
-      fetchPosts.rejected, (state, action) => {
-        state.isLoading = false 
-        state.isError = true
-      }
-    )
-  }
-})
+    name: "posts",
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchPosts.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(fetchPosts.fulfilled, (state, action) => {
+                state.isError = false;
+                state.postItems = action.payload;
+                state.amount = action.payload.length;
+                state.isLoading = false;
+				state.created = false;
+            })
+            .addCase(fetchPosts.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+            })
+			.addCase(createPost.fulfilled, (state, action) => {
+				state.created = true
+			})
+			.addCase(deletePost.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(deletePost.fulfilled, (state, action) => {
+                state.postItems = state.postItems.filter(
+                    (post) => post._id != action.payload
+                );
+                state.amount = state.postItems.length;
+				state.isLoading = false;
+				state.isError = false
+            })
+			.addCase(deletePost.rejected, (state, action) => {
+				state.isLoading = false;
+				state.isError = true;
+			})
+			;
+    },
+});
 
-
-export default postsSlice.reducer
-console.log(postsSlice)
+export default postsSlice.reducer;
+console.log(postsSlice);
